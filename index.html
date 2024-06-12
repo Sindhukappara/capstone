@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Auth</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color:linear-gradient();
+            padding: 40px;
+            border-radius: 20px black;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            margin: 20px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            padding-left: 45px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .input-group .fa {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        .input-group .fa-eye {
+            right: 15px;
+            left: auto;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 20px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+            <div class="input-group">
+                <input type="text" id="first-name" placeholder="First Name" required>
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="input-group">
+                <input type="text" id="last-name" placeholder="Last Name" required>
+                <i class="fa fa-user"></i>
+            </div>
+            <div class="input-group">
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <i class="fa fa-envelope"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <i class="fa fa-lock"></i>
+                <i class="fa fa-eye" id="toggle-signup-password"></i>
+            </div>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Log In</h2>
+        <form id="login-form">
+            <div class="input-group">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <i class="fa fa-envelope"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-password" placeholder="Password" required>
+                <i class="fa fa-lock"></i>
+                <i class="fa fa-eye" id="toggle-login-password"></i>
+            </div>
+            <button type="submit">Log In</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDTR59RoT3c0PZ3riW0XBOoHgo9E7KIyDw",
+    authDomain: "login-1fe5c.firebaseapp.com",
+    databaseURL: "https://login-1fe5c-default-rtdb.firebaseio.com",
+    projectId: "login-1fe5c",
+    storageBucket: "login-1fe5c.appspot.com",
+    messagingSenderId: "697735094851",
+    appId: "1:697735094851:web:87cd24230c5f6730622af6",
+    measurementId: "G-DP7CG3DKGF"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('signup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const firstName = document.getElementById('first-name').value;
+            const lastName = document.getElementById('last-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    return updateProfile(user, {
+                        displayName: `${firstName} ${lastName}`
+                    });
+                })
+                .then(() => {
+                    document.getElementById('message').innerText = 'Sign Up Successful';
+                    window.location.href = 'whether.html'; // Ensure correct path
+                })
+                .catch((error) => {
+                    document.getElementById('message').innerText = error.message;
+                });
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    document.getElementById('message').innerText = 'Log In Successful';
+                    window.location.href = 'whether.html'; // Ensure correct path
+                })
+                .catch((error) => {
+                    document.getElementById('message').innerText = error.message;
+                });
+        });
+
+        document.getElementById('toggle-signup-password').addEventListener('click', () => {
+            const passwordField = document.getElementById('signup-password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            document.getElementById('toggle-signup-password').classList.toggle('fa-eye-slash');
+        });
+
+        document.getElementById('toggle-login-password').addEventListener('click', () => {
+            const passwordField = document.getElementById('login-password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            document.getElementById('toggle-login-password').classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>
